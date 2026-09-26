@@ -1,0 +1,11 @@
+<odoo>
+    <record id="product_company_rule" model="ir.rule"><field name="name">StockSense products by company</field><field name="model_id" ref="model_stocksense_product"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="warehouse_company_rule" model="ir.rule"><field name="name">StockSense warehouses by company</field><field name="model_id" ref="model_stocksense_warehouse"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="location_company_rule" model="ir.rule"><field name="name">StockSense locations by company</field><field name="model_id" ref="model_stocksense_location"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="stock_company_rule" model="ir.rule"><field name="name">StockSense balances by company</field><field name="model_id" ref="model_stocksense_stock"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="ledger_company_rule" model="ir.rule"><field name="name">StockSense ledger by company</field><field name="model_id" ref="model_stocksense_stock_ledger"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="reorder_company_rule" model="ir.rule"><field name="name">StockSense reorder rules by company</field><field name="model_id" ref="model_stocksense_reorder_rule"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="operation_company_rule" model="ir.rule"><field name="name">StockSense operations by company</field><field name="model_id" ref="model_stocksense_operation"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="line_company_rule" model="ir.rule"><field name="name">StockSense lines by company</field><field name="model_id" ref="model_stocksense_operation_line"/><field name="domain_force">[('company_id', 'in', company_ids)]</field></record>
+    <record id="category_company_rule" model="ir.rule"><field name="name">StockSense categories by company</field><field name="model_id" ref="model_stocksense_product_category"/><field name="domain_force">['|', ('company_id', '=', False), ('company_id', 'in', company_ids)]</field></record>
+</odoo>

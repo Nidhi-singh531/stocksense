@@ -1,0 +1,25 @@
+{
+    "name": "StockSense",
+    "summary": "Products, warehouses, stock movements and inventory dashboard",
+    "version": "18.0.2.1.0",
+    "category": "Inventory/Inventory",
+    "license": "LGPL-3",
+    "depends": ["base", "web", "mail", "auth_signup"],
+    "data": [
+        "security/security.xml",
+        "security/ir.model.access.csv",
+        "data/sequence.xml",
+        "views/inventory_views.xml",
+        "views/operation_views.xml",
+        "views/menus.xml",
+        "views/auth_templates.xml",
+        "data/auth_data.xml",
+    ],
+    "assets": {"web.assets_backend": [
+        "stocksense/static/src/js/dashboard.js",
+        "stocksense/static/src/xml/dashboard.xml",
+        "stocksense/static/src/css/dashboard.css",
+    ]},
+    "application": True,
+    "installable": True,
+}

@@ -1,0 +1,11 @@
+id,name,model_id:id,group_id:id,perm_read,perm_write,perm_create,perm_unlink
+access_product_user,stocksense.product user,model_stocksense_product,base.group_user,1,1,1,1
+access_warehouse_user,stocksense.warehouse user,model_stocksense_warehouse,base.group_user,1,1,1,1
+access_location_user,stocksense.location user,model_stocksense_location,base.group_user,1,1,1,1
+access_stock_user,stocksense.stock user,model_stocksense_stock,base.group_user,1,0,0,0
+access_ledger_user,stocksense.stock.ledger user,model_stocksense_stock_ledger,base.group_user,1,0,0,0
+access_reorder_user,stocksense.reorder.rule user,model_stocksense_reorder_rule,base.group_user,1,1,1,1
+access_operation_user,stocksense.operation user,model_stocksense_operation,base.group_user,1,1,1,1
+access_operation_line_user,stocksense.operation.line user,model_stocksense_operation_line,base.group_user,1,1,1,1
+access_category_user,stocksense.product.category user,model_stocksense_product_category,base.group_user,1,1,1,1
+access_password_otp_system,stocksense.password.otp system,model_stocksense_password_otp,base.group_system,1,0,0,0

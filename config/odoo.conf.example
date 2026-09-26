@@ -1,0 +1,12 @@
+[options]
+addons_path = C:\Projects\odoo\odoo\addons,C:\Projects\odoo\addons,C:\Projects\stocksense\addons
+data_dir = C:\Projects\stocksense\.local\odoo
+db_host = localhost
+db_port = 5432
+db_user = odoo
+db_password = REPLACE_WITH_LOCAL_DATABASE_PASSWORD
+admin_passwd = REPLACE_WITH_LOCAL_MASTER_PASSWORD
+http_interface = 127.0.0.1
+http_port = 8069
+workers = 0
+db_template = template1
