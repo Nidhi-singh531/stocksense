@@ -1,0 +1,58 @@
+<templates xml:space="preserve">
+    <t t-name="stocksense.Dashboard">
+        <div class="ss-dashboard">
+            <header class="ss-heading"><div><span class="ss-eyebrow">STOCKSENSE / INVENTORY</span><h1>Your inventory, at a glance.</h1><p>Track what is here, what is moving, and what needs attention.</p></div><button class="btn btn-outline-primary" t-on-click="refresh" t-att-disabled="state.loading"><i class="fa fa-refresh me-2"/>Refresh</button></header>
+            <div t-if="state.error" class="alert alert-danger" role="alert">Could not load the dashboard. Check your connection and try Refresh.</div>
+            <div t-if="!state.data and state.loading" class="ss-empty" role="status">Loading inventory…</div>
+            <t t-if="state.data">
+                <section class="ss-filters" aria-label="Dashboard filters">
+                    <label><span>Document type</span>
+                        <select class="form-select form-select-sm" t-on-change="(ev) => this.setFilter('operation_type', ev.target.value)">
+                            <option value="" t-att-selected="!state.filters.operation_type">All types</option>
+                            <option t-foreach="operationTypes" t-as="type" t-key="type[0]" t-att-value="type[0]" t-att-selected="state.filters.operation_type === type[0]" t-esc="type[1]"/>
+                        </select>
+                    </label>
+                    <label><span>Status</span>
+                        <select class="form-select form-select-sm" t-on-change="(ev) => this.setFilter('status', ev.target.value)">
+                            <option value="" t-att-selected="!state.filters.status">All statuses</option>
+                            <option t-foreach="statuses" t-as="status" t-key="status[0]" t-att-value="status[0]" t-att-selected="state.filters.status === status[0]" t-esc="status[1]"/>
+                        </select>
+                    </label>
+                    <label><span>Warehouse</span>
+                        <select class="form-select form-select-sm" t-on-change="(ev) => this.setFilter('warehouse_id', ev.target.value)">
+                            <option value="" t-att-selected="!state.filters.warehouse_id">All warehouses</option>
+                            <option t-foreach="state.data.options.warehouses" t-as="warehouse" t-key="warehouse.id" t-att-value="warehouse.id" t-att-selected="isSelected('warehouse_id', warehouse.id)" t-esc="warehouse.name"/>
+                        </select>
+                    </label>
+                    <label><span>Location</span>
+                        <select class="form-select form-select-sm" t-on-change="(ev) => this.setFilter('location_id', ev.target.value)">
+                            <option value="" t-att-selected="!state.filters.location_id">All locations</option>
+                            <option t-foreach="locationOptions" t-as="location" t-key="location.id" t-att-value="location.id" t-att-selected="isSelected('location_id', location.id)" t-esc="location.name"/>
+                        </select>
+                    </label>
+                    <label><span>Product category</span>
+                        <select class="form-select form-select-sm" t-on-change="(ev) => this.setFilter('category_id', ev.target.value)">
+                            <option value="" t-att-selected="!state.filters.category_id">All categories</option>
+                            <option t-foreach="state.data.options.categories" t-as="category" t-key="category.id" t-att-value="category.id" t-att-selected="isSelected('category_id', category.id)" t-esc="category.name"/>
+                        </select>
+                    </label>
+                    <button t-if="hasFilters" class="btn btn-link btn-sm ss-clear" t-on-click="clearFilters">Clear filters</button>
+                </section>
+                <div class="ss-metrics">
+                    <button class="ss-metric" t-on-click="() => this.openAction('products')"><span>Total products</span><strong t-esc="state.data.products"/><small>Browse catalog <i class="fa fa-arrow-right"/></small></button>
+                    <button class="ss-metric ss-warning" t-on-click="openLow"><span>Low stock</span><strong t-esc="state.data.low_stock"/><small>Below reorder minimum</small></button>
+                    <button class="ss-metric ss-danger" t-on-click="openEmpty"><span>Out of stock</span><strong t-esc="state.data.out_of_stock"/><small>Products with no stock</small></button>
+                    <button class="ss-metric" t-on-click="() => this.openPending('receipt')"><span>Pending receipts</span><strong t-esc="state.data.receipts"/><small>Incoming inventory</small></button>
+                    <button class="ss-metric" t-on-click="() => this.openPending('delivery')"><span>Pending deliveries</span><strong t-esc="state.data.deliveries"/><small>Outgoing inventory</small></button>
+                    <button class="ss-metric" t-on-click="() => this.openPending('transfer')"><span>Transfers scheduled</span><strong t-esc="state.data.transfers"/><small>Moving between locations</small></button>
+                </div>
+                <div class="ss-quick"><span>New operation</span><button class="btn btn-primary" t-on-click="() => this.openAction('receipts')">Receive goods</button><button class="btn btn-outline-primary" t-on-click="() => this.openAction('deliveries')">Deliver goods</button><button class="btn btn-outline-primary" t-on-click="() => this.openAction('transfers')">Transfer</button><button class="btn btn-outline-primary" t-on-click="() => this.openAction('adjustments')">Count stock</button></div>
+                <section t-if="!state.data.products and !hasFilters" class="ss-welcome"><h2>Make room for your first product.</h2><p>Start with a warehouse and its locations, then add your products with their initial stock.</p><button class="btn btn-primary" t-on-click="() => this.openAction('warehouses')">Set up a warehouse</button><button class="btn btn-link" t-on-click="() => this.openAction('products')">Add a product <i class="fa fa-arrow-right"/></button></section>
+                <div class="ss-panels">
+                    <section class="ss-panel"><div class="ss-panel-heading"><h2>Operations <small class="text-muted" t-esc="state.data.operations_count"/></h2><button class="btn btn-link" t-on-click="openOperations">View all</button></div><div class="table-responsive" t-if="state.data.recent.length"><table class="table"><thead><tr><th>Reference</th><th>Type</th><th>Status</th></tr></thead><tbody><tr t-foreach="state.data.recent" t-as="op" t-key="op.id"><td><button class="btn btn-link p-0" t-on-click="() => this.openOperation(op.id)" t-esc="op.reference"/></td><td class="text-capitalize" t-esc="op.type"/><td><span t-att-class="'ss-status ss-status-' + op.status" t-esc="op.status"/></td></tr></tbody></table></div><p t-elif="hasFilters" class="ss-empty">No operations match these filters.</p><p t-else="" class="ss-empty">Your receipts, deliveries, transfers and counts will appear here.</p></section>
+                    <section class="ss-panel"><div class="ss-panel-heading"><h2>Needs replenishment</h2><button class="btn btn-link" t-on-click="() => this.openAction('reorder')">Rules</button></div><div class="table-responsive" t-if="state.data.low_items.length"><table class="table"><thead><tr><th>Product / location</th><th>On hand</th><th>Suggested</th></tr></thead><tbody><tr t-foreach="state.data.low_items" t-as="item" t-key="item.id"><td><strong t-esc="item.product"/><small class="d-block text-muted" t-esc="item.location"/></td><td t-esc="item.quantity"/><td t-esc="item.suggested"/></tr></tbody></table></div><p t-else="" class="ss-empty">No low stock alerts. Add reordering rules to track minimum stock levels.</p></section>
+                </div>
+            </t>
+        </div>
+    </t>
+</templates>

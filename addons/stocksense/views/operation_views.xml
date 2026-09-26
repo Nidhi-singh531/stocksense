@@ -1,0 +1,44 @@
+<odoo>
+    <record id="operation_list" model="ir.ui.view"><field name="name">stocksense.operation.list</field><field name="model">stocksense.operation</field><field name="arch" type="xml">
+        <list decoration-muted="status == 'canceled'" decoration-success="status == 'done'"><field name="reference"/><field name="operation_type"/><field name="date"/><field name="partner_id"/><field name="source_location_id"/><field name="destination_location_id"/><field name="status" widget="badge"/><field name="company_id" groups="base.group_multi_company"/></list>
+    </field></record>
+    <record id="operation_form" model="ir.ui.view"><field name="name">stocksense.operation.form</field><field name="model">stocksense.operation</field><field name="arch" type="xml">
+        <form>
+            <header>
+                <button name="action_confirm" type="object" string="Confirm" invisible="status != 'draft'"/>
+                <button name="action_ready" type="object" string="Mark Ready" invisible="status != 'waiting' or operation_type == 'delivery'"/>
+                <button name="action_ready" type="object" string="Picked &amp; Packed" invisible="status != 'waiting' or operation_type != 'delivery'"/>
+                <button name="action_validate" type="object" string="Validate" class="oe_highlight" invisible="status in ['done', 'canceled']" confirm="Post this operation to stock? Completed operations cannot be edited."/>
+                <button name="action_cancel" type="object" string="Cancel" invisible="status in ['done', 'canceled']"/>
+                <button name="action_reset_draft" type="object" string="Reset to Draft" invisible="status not in ['waiting', 'ready', 'canceled']"/>
+                <field name="status" widget="statusbar" statusbar_visible="draft,waiting,ready,done"/>
+            </header>
+            <sheet>
+                <div class="oe_title"><h1><field name="reference"/></h1></div>
+                <group><group>
+                    <field name="operation_type" readonly="status != 'draft'"/>
+                    <field name="partner_id" readonly="status != 'draft'" invisible="operation_type not in ['receipt','delivery']" required="operation_type == 'receipt'"/>
+                    <field name="date" readonly="status != 'draft'"/>
+                    <field name="completed_at" invisible="status != 'done'"/>
+                </group><group>
+                    <field name="company_id" groups="base.group_multi_company" readonly="status != 'draft'"/>
+                    <field name="source_location_id" readonly="status != 'draft'" invisible="operation_type not in ['delivery','transfer']" required="operation_type in ['delivery','transfer']"/>
+                    <field name="destination_location_id" readonly="status != 'draft'" invisible="operation_type == 'delivery'" required="operation_type != 'delivery'"/>
+                </group></group>
+                <div class="alert alert-info" role="status" invisible="operation_type != 'adjustment'">Enter the actual physical count at the destination location. Zero clears that product's stock at this location.</div>
+                <div class="alert alert-info" role="status" invisible="status not in ['waiting','ready']">Ready does not reserve stock. Availability is checked when you validate.</div>
+                <notebook>
+                    <page string="Products"><field name="line_ids" readonly="status != 'draft'"><list editable="bottom"><field name="company_id" column_invisible="True"/><field name="product_id"/><field name="quantity" column_invisible="parent.operation_type == 'adjustment'"/><field name="counted_quantity" column_invisible="parent.operation_type != 'adjustment'"/><field name="unit_of_measure" readonly="1"/></list></field></page>
+                    <page string="Notes"><field name="notes" readonly="status != 'draft'" placeholder="Reference, reason for adjustment, or handling instructions..."/></page>
+                    <page string="Stock Movements" invisible="status != 'done'"><field name="ledger_ids" readonly="1"><list create="0" edit="0" delete="0"><field name="product_id"/><field name="location_id"/><field name="quantity_before"/><field name="quantity_change"/><field name="quantity_after"/></list></field></page>
+                </notebook>
+            </sheet>
+        </form>
+    </field></record>
+    <record id="operation_search" model="ir.ui.view"><field name="name">stocksense.operation.search</field><field name="model">stocksense.operation</field><field name="arch" type="xml"><search><field name="reference"/><field name="line_ids" string="Product / SKU" filter_domain="[('line_ids.product_id', 'ilike', self)]"/><field name="partner_id"/><field name="source_location_id" string="Warehouse" filter_domain="['|', ('source_location_id.warehouse_id', 'ilike', self), ('destination_location_id.warehouse_id', 'ilike', self)]"/><field name="source_location_id" string="Location" filter_domain="['|', ('source_location_id', 'ilike', self), ('destination_location_id', 'ilike', self)]"/><field name="line_ids" string="Category" filter_domain="[('line_ids.product_id.category_id', 'ilike', self)]"/><filter name="receipts" string="Receipts" domain="[('operation_type','=','receipt')]"/><filter name="deliveries" string="Deliveries" domain="[('operation_type','=','delivery')]"/><filter name="transfers" string="Internal Transfers" domain="[('operation_type','=','transfer')]"/><filter name="adjustments" string="Adjustments" domain="[('operation_type','=','adjustment')]"/><separator/><filter name="draft" string="Draft" domain="[('status','=','draft')]"/><filter name="waiting" string="Waiting" domain="[('status','=','waiting')]"/><filter name="ready" string="Ready" domain="[('status','=','ready')]"/><filter name="done" string="Done" domain="[('status','=','done')]"/><filter name="canceled" string="Canceled" domain="[('status','=','canceled')]"/><separator/><filter name="date" string="Scheduled Date" date="date"/><group expand="0" string="Group By"><filter name="status" string="Status" context="{'group_by':'status'}"/><filter name="type" string="Type" context="{'group_by':'operation_type'}"/></group></search></field></record>
+    <record id="action_operations" model="ir.actions.act_window"><field name="name">All Operations</field><field name="res_model">stocksense.operation</field><field name="view_mode">list,form</field></record>
+    <record id="action_receipts" model="ir.actions.act_window"><field name="name">Receipts</field><field name="res_model">stocksense.operation</field><field name="view_mode">list,form</field><field name="domain">[('operation_type','=','receipt')]</field><field name="context">{'default_operation_type':'receipt'}</field></record>
+    <record id="action_deliveries" model="ir.actions.act_window"><field name="name">Deliveries</field><field name="res_model">stocksense.operation</field><field name="view_mode">list,form</field><field name="domain">[('operation_type','=','delivery')]</field><field name="context">{'default_operation_type':'delivery'}</field></record>
+    <record id="action_transfers" model="ir.actions.act_window"><field name="name">Internal Transfers</field><field name="res_model">stocksense.operation</field><field name="view_mode">list,form</field><field name="domain">[('operation_type','=','transfer')]</field><field name="context">{'default_operation_type':'transfer'}</field></record>
+    <record id="action_adjustments" model="ir.actions.act_window"><field name="name">Adjustments</field><field name="res_model">stocksense.operation</field><field name="view_mode">list,form</field><field name="domain">[('operation_type','=','adjustment')]</field><field name="context">{'default_operation_type':'adjustment'}</field></record>
+</odoo>
