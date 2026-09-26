@@ -11,6 +11,8 @@ managers and warehouse staff.
 > the screens have not yet been compared with the Excalidraw mockup (⬜). See
 > [What remains](#what-remains).
 
+
+##video- https://drive.google.com/drive/folders/12G8NXivwbygDPgyrAG9cJKUO9oWDdScT?usp=sharing
 ## Contents
 
 - [Status by requirement](#status-by-requirement)
